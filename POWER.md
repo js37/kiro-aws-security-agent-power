@@ -2,7 +2,7 @@
 name: "aws-security-agent"
 displayName: "AWS Security Agent"
 description: "AI-powered security scanning and penetration testing. Run full repository code scans to find vulnerabilities, or pentest live applications."
-keywords: ["security", "scan", "vulnerability", "code review", "pentest", "sast", "remediation"]
+keywords: ["is my code secure", "code security", "security scan", "security vulnerabilities", "vulnerabilities", "pentest", "penetration test", "test my app", "attack surface", "code review", "sast", "owasp", "cve", "audit", "compliance", "production ready", "security review"]
 author: "AWS"
 homepage: "https://docs.aws.amazon.com/securityagent/"
 repository: "https://github.com/ljainiaz/kiro-aws-security-agent-power"
@@ -11,6 +11,16 @@ repository: "https://github.com/ljainiaz/kiro-aws-security-agent-power"
 # AWS Security Agent
 
 You are enhanced with the AWS Security Agent, an AI-powered security scanner. You access it through the `security-agent` MCP server to run automated security code reviews and penetration tests.
+
+---
+
+## When to use this power
+
+- **Direct security requests** — scans, audits, vulnerability checks
+- **Workflow checkpoints** — pre-commit, pre-PR, pre-deploy, prod-readiness
+- **Code change events** — after adding endpoints, auth, features, or refactors
+- **Pentest scenarios** — testing live apps, attack surface
+- **Ambiguous code-quality requests** ("review my code") — proactively offer a security check
 
 ---
 
@@ -78,16 +88,20 @@ You are enhanced with the AWS Security Agent, an AI-powered security scanner. Yo
 ## Workflow: Security Code Scan
 
 1. `setup_check` → verify ready
-2. `start_security_scan(path=".", title="pre-cr-<branch-name>")`
+2. `start_security_scan(path="<absolute-workspace-path>", title="pre-cr-<branch-name>")`
+   - `path` must be an absolute path (not `"."`)
    - Title must not contain spaces (use hyphens)
    - Returns immediately with scan_id
-3. Tell user: "Scan started (scan_id: {id}). It typically takes 30-45 minutes."
-4. Ask: "Would you like me to poll for status periodically, or would you prefer to check back later?"
-   - If "poll" → poll `get_scan_status` every 60 seconds, report on status changes only
-   - If "check later" → tell user: "Say 'scan status' or 'show findings' anytime." Stop here.
+3. Tell user: "Scan started (scan_id: {id}). I'll check every 5 minutes and report when it's done — say 'check status' anytime, or 'stop polling' to opt out."
+4. **Default polling pattern** (do NOT poll faster than this):
+   - **Wait 5 full minutes** between each `get_scan_status` call — use `sleep 300` via Bash before each check
+   - First check: at the 5-minute mark (NOT immediately after start)
+   - Only respond to the user when status CHANGES (e.g., IN_PROGRESS → COMPLETED) or when scan finishes
+   - Do NOT report "still in progress" multiple times — that's noise
+   - If user says "stop polling" or "check later" → stop and tell them: "Say 'scan status' or 'show findings' anytime."
 5. Findings can be fetched anytime with `get_scan_findings` — even during IN_PROGRESS (partial results)
 6. On COMPLETED → `get_scan_findings` for final results
-7. Present findings grouped by severity
+7. Present findings grouped by severity (see Findings Presentation section)
 
 ---
 
@@ -114,7 +128,11 @@ Pentests run 1-24 hours depending on scope.
 
 ## Findings Presentation
 
-When presenting findings, use this format:
+After any scan completes, do BOTH of these:
+
+### 1. Concise summary in chat
+
+Group by severity, show file path + line number for each finding:
 
 ```
 🟣 CRITICAL: {name}
@@ -134,7 +152,51 @@ When presenting findings, use this format:
    {description}
 ```
 
-After presenting, ask:
+### 2. Detailed report file
+
+Write a full markdown report to `.security-agent/findings-{scan_id}.md` in the workspace root. The report MUST include EVERY field returned by the API for each finding (findingId, name, description, riskLevel, riskType, confidence, status, codeLocations with filePath/lineStart/lineEnd, remediationCode, and any other fields returned).
+
+Also create `.security-agent/.gitignore` containing `*` so the directory is gitignored.
+
+Tell the user: "Full details written to `.security-agent/findings-{scan_id}.md`"
+
+### Report file format
+
+```markdown
+# Security Scan Report — {scan_id}
+
+**Title**: {title}
+**Started**: {started_at}
+**Total findings**: {count}
+
+## Summary
+| Severity | Count |
+|----------|-------|
+| CRITICAL | N |
+| HIGH | N |
+| MEDIUM | N |
+| LOW | N |
+
+## Findings
+
+### 🟣 CRITICAL: {name}
+- **ID**: {findingId}
+- **Risk type**: {riskType}
+- **Confidence**: {confidence}
+- **Status**: {status}
+- **Location**: `{filePath}:{lineStart}-{lineEnd}`
+
+**Description**: {description}
+
+**Remediation**:
+{remediationCode}
+
+(repeat for every finding)
+```
+
+### After presentation
+
+Ask:
 - "Would you like to focus on the critical/high findings first?"
 - "Should I explain any of these in more detail?"
 
@@ -144,7 +206,7 @@ After presenting, ask:
 
 - `start_security_scan` returns immediately — use `get_scan_status` to poll
 - Always call `setup_check` before `start_security_scan`
-- After scan starts, ask the user if they want polling or prefer to check later
+- After a code scan starts, default to polling automatically every 5 minutes. Stop polling if the user says "stop polling" or "check later".
 - When `setup_check` returns existing agent spaces, show them to the user and ask which to use — do not auto-select
 - Use latest scan by default if user doesn't specify a scan_id
 - Be concise — format findings with severity icons and file locations, don't dump raw JSON

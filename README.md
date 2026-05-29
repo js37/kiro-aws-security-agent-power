@@ -4,7 +4,7 @@ AI-powered security scanning and penetration testing via Kiro.
 
 ## What it does
 
-- Run full security code scans on your workspace to find vulnerabilities
+- Run full security code scans on your workspace to help find vulnerabilities
 - Orchestrate penetration tests against live applications
 - Retrieve findings with code locations and severity
 - Access all AWS Security Agent API operations
