@@ -1,0 +1,18 @@
+[project]
+name = "security-agent-remediation"
+version = "0.1.0"
+description = "Fetch AWS Security Agent findings (pentest and code review) to a local gitignored directory."
+requires-python = ">=3.10"
+# AWS Security Agent is a new, fast-evolving service whose client ships in recent boto3
+# builds, so we intentionally track the latest boto3 and do NOT pin or lock. Each time
+# the skill's environment is set up, uv resolves the newest compatible boto3 — which
+# matters because the `securityagent` API model is still changing. The repo's exact-pin
+# rule applies to the deployed application, not this standalone helper skill.
+dependencies = [
+    "boto3",
+]
+
+# This is a script-only project: there is no importable package to build, so skip
+# the build step. `uv run` still creates and manages the virtual environment.
+[tool.uv]
+package = false
