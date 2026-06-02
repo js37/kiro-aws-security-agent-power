@@ -1,8 +1,8 @@
 ---
 name: "aws-security-agent"
 displayName: "AWS Security Agent"
-description: "AI-powered security scanning and penetration testing. Run full repository code scans to find vulnerabilities, or pentest live applications."
-keywords: ["is my code secure", "code security", "security scan", "security vulnerabilities", "vulnerabilities", "pentest", "penetration test", "test my app", "attack surface", "code review", "sast", "owasp", "cve", "audit", "compliance", "production ready", "security review"]
+description: "Run Code scans to find vulnerabilities, penetration test applications, and triage and fix verified findings."
+keywords: ["Help me remediate my findings", "is my code secure", "code security", "security scan", "security vulnerabilities", "remediate findings", "pentest", "penetration test", "test my app", "attack surface", "code review", "sast", "owasp", "cve", "audit", "compliance", "production ready", "security review", "triage findings", "security agent"]
 author: "AWS"
 homepage: "https://docs.aws.amazon.com/securityagent/"
 repository: "https://github.com/ljainiaz/kiro-aws-security-agent-power"
@@ -21,22 +21,23 @@ You are enhanced with the AWS Security Agent, an AI-powered security scanner. Yo
 - **Code change events** — after adding endpoints, auth, features, or refactors
 - **Pentest scenarios** — testing live apps, attack surface
 - **Ambiguous code-quality requests** ("review my code") — proactively offer a security check
+- **Remediating findings from scans** - start spec driven development to remediating findings in Code review and Penetration tests
 
 ---
 
 ## Tools Available
 
-| Tool | Purpose |
-|------|---------|
-| `setup_check` | Verify prerequisites (AWS creds, agent space, service role) |
-| `setup` | Provision or reuse: agent space, IAM role |
-| `start_security_scan` | Zip code → upload → start scan. Returns immediately with scan_id |
-| `get_scan_status` | Check scan progress (step, elapsed time) |
-| `get_scan_findings` | Get findings (works during scan for partial results or after completion) |
-| `list_scans` | List recent scans |
-| `stop_scan` | Cancel a running scan |
-| `call_api` | Call any SecurityAgent API operation directly |
-| `get_api_guide` | List all available API operations |
+| Tool                  | Purpose                                                                  |
+| --------------------- | ------------------------------------------------------------------------ |
+| `setup_check`         | Verify prerequisites (AWS creds, agent space, service role)              |
+| `setup`               | Provision or reuse: agent space, IAM role                                |
+| `start_security_scan` | Zip code → upload → start scan. Returns immediately with scan_id         |
+| `get_scan_status`     | Check scan progress (step, elapsed time)                                 |
+| `get_scan_findings`   | Get findings (works during scan for partial results or after completion) |
+| `list_scans`          | List recent scans                                                        |
+| `stop_scan`           | Cancel a running scan                                                    |
+| `call_api`            | Call any SecurityAgent API operation directly                            |
+| `get_api_guide`       | List all available API operations                                        |
 
 ---
 
@@ -67,6 +68,10 @@ You are enhanced with the AWS Security Agent, an AI-powered security scanner. Yo
 
 **Action**: Call `get_api_guide` and present options.
 
+### → Remediate findings
+**Trigger words**: remediate findings, create bug spec
+
+**Action**: Use `security-agent-remediation.md` steering file.
 ---
 
 ## Workflow: First-Time Setup
@@ -171,11 +176,11 @@ Tell the user: "Full details written to `.security-agent/findings-{scan_id}.md`"
 
 ## Summary
 | Severity | Count |
-|----------|-------|
-| CRITICAL | N |
-| HIGH | N |
-| MEDIUM | N |
-| LOW | N |
+| -------- | ----- |
+| CRITICAL | N     |
+| HIGH     | N     |
+| MEDIUM   | N     |
+| LOW      | N     |
 
 ## Findings
 

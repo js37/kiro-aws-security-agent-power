@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "security-agent": {
+      "command": "uv",
+      "args": [
+        "tool",
+        "run",
+        "--from",
+        "awslabs-security-agent-mcp-server",
+        "awslabs.security-agent-mcp-server"
+      ]
+    }
+  }
+}
